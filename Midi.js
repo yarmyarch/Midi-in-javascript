@@ -1,7 +1,8 @@
 var Midi = (function() {
     
     // innerClass definations.
-    var ajax = (function() {    
+    var ajax = (function() {
+        
         var self;
         var xmlHttp;
         var response;
@@ -36,15 +37,27 @@ var Midi = (function() {
         xmlHttp = getXMLHttp();
         
         return self = {
-            get : function(url, respondMethod, async) {
+            get : function(url, respondMethod, syn) {
 
                 if (xmlHttp) {
-                    xmlHttp.open("get", url, async);
+                    xmlHttp.open("get", url);
                     response = respondMethod;
                     xmlHttp.onreadystatechange = doResponse;
                     xmlHttp.send();
-                    
-                    if (!async) return xmlHttp.responseText;
+                }
+            },
+            
+            /**
+             * @param param encoded param.
+             */
+            post : function(url, param, respondMethod) {
+
+                if (xmlHttp) {
+                    xmlHttp.open("post", url);
+                    xmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");
+                    response = respondMethod;
+                    xmlHttp.onreadystatechange = doResponse;
+                    xmlHttp.send(param);
                 }
             }
         }
@@ -78,6 +91,10 @@ var Midi = (function() {
         
         get : function(url, callback, async) {
             return ajax.get(url, callback, async);
+        },
+        
+        post : function(url, callback, async) {
+            return ajax.post(url, callback, async);
         }
     }
 })();
