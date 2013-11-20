@@ -40,11 +40,13 @@ var Midi = (function() {
             get : function(url, respondMethod, syn) {
 
                 if (xmlHttp) {
-                    xmlHttp.open("get", url);
+                    xmlHttp.open("get", url, syn);
                     response = respondMethod;
                     xmlHttp.onreadystatechange = doResponse;
                     xmlHttp.send();
                 }
+                
+                if (!syn) return xmlHttp.responseText;
             },
             
             /**

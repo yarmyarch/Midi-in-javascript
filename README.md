@@ -14,16 +14,19 @@ Public API
 ###### class Player
     Undergoing;
     
-###### public function get(url, callback, async)
+###### function get(url, callback, async)
     Simple Ajax get;
     
-###### public function post(url, callback, async)
+###### function post(url, callback, async)
     Simple Ajax post;
     
-###### public function requireClass(classRoot, forceReload)
+###### function requireClass(classRoot, forceReload)
+    ```js
     /**
-     * @param classRoot {String} class name with directory. For example "swf/player" will result in swf/player.js loaded synchronously;
-     * @param forceReload {boolean} all scripts that was loaded would be cached. Set this flag to 1 if you want to load and execute it again.;
+     * @param classRoot {String} 
+     * class name with directory. For example "swf/player" will result in swf/player.js loaded synchronously;
+     * @param forceReload {boolean} 
+     * all scripts that was loaded would be cached. Set this flag to 1 if you want to load and execute it again.;
      */
     Include another javascript file synchronously, this would be used when the current file is based on the included one.
 
