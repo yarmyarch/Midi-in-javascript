@@ -21,7 +21,7 @@ Public API
     Simple Ajax post;
     
 ###### function requireClass(classRoot, forceReload)
-    ```js
+    \\\js
     /**
      * @param classRoot {String} 
      * class name with directory. For example "swf/player" will result in swf/player.js loaded synchronously;
@@ -29,4 +29,4 @@ Public API
      * all scripts that was loaded would be cached. Set this flag to 1 if you want to load and execute it again.;
      */
     Include another javascript file synchronously, this would be used when the current file is based on the included one.
-    ```
+    \\\
