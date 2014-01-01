@@ -9,7 +9,11 @@ Midi.Sequence;
 G_LC = {
     COPY_RIGHT : "©2013 by yarmyarch@live.cn - Dreamline Studio, all rights reserved."
 };
-    
+
+/**
+ * midiType:0/1/2
+ * frames : how much ticks in a second. 120 recommanded.
+ */
 Midi.Sequence = function(midiType, frames) {
     
     var self = this,
