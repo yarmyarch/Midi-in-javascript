@@ -1,6 +1,7 @@
 Midi.requireClass("TrackChunk");
 Midi.requireClass("MidiUtil");
-Midi.requireClass("FlashPlayer");
+// ### FlashPlayer NOT USED! Should define player with AudioAPI instead.
+//~ Midi.requireClass("FlashPlayer");
 
 Midi.Sequence;
 (function() {
@@ -9,7 +10,7 @@ G_LC = {
     COPY_RIGHT : "©2013 by yarmyarch@live.cn - Dreamline Studio, all rights reserved."
 };
     
-Sequence = function(midiType, frames) {
+Midi.Sequence = function(midiType, frames) {
     
     var self = this,
         _lc = G_LC;

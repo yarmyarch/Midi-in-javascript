@@ -6,7 +6,7 @@ Midi.Track;
 /**
  *@param type MThd/MTrk, header trunk or normal trunk.
  */
-Track = function(channel) {
+Midi.Track = function(channel) {
     
     /**
      * An event contains the tick(as the key) and the message (as the value).
@@ -133,8 +133,8 @@ Track = function(channel) {
 /**
 M        T        h        d          length: 6                             midi type: 1      Tracks count: 1   division: Mode 0, 1 tick for each 1/4 beat which lasts for 1 seconds.
 01001101 01010100 01101000 01100100 | 00000000 00000000 00000000 00000110 | 00000000 00000001 00000000 00000001 00000000 00000001
-M        T        r        k          length: 0                             midi type: 1      Tracks count: 1   division: Mode 0, 1 tick for each 1/4 beat which lasts for 1 seconds.
-01001101 01010100 01110010 01101011 | 00000000 00000000 00000000 00000000 | 00000000 00000001 00000000 00000001 00000000 00000001
+M        T        r        k          length: 0
+01001101 01010100 01110010 01101011 | 00000000 00000000 00000000 00000000
 
 NoteOn:
 0        90       45       5A

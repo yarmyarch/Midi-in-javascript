@@ -1,3 +1,4 @@
+// ### NOT USED! Should define player with AudioAPI instead.
 Midi.requireClass("Player");
 
 // Static class, no new required.

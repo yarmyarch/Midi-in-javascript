@@ -4,7 +4,7 @@ Midi.requireClass("Track");
 Midi.TrackChunk;
 (function() {
     
-TrackChunk = function(channel) {
+Midi.TrackChunk = function(channel) {
     
     var self = this,
         _super = {};
