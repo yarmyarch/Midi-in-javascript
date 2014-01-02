@@ -24,7 +24,7 @@ Midi.TrackChunk = function(channel) {
         // MTrk
         result = result.concat([77, 84, 114, 107]);
         var data = _super.toByteArray();
-        result = result.concat(MidiUtil.int2ByteArray(data.length));
+        result = result.concat(MidiUtil.int2ByteArray(data.length, 4).slice(-4));
         return result.concat(data);
     };
     
