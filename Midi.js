@@ -1,3 +1,5 @@
+//@ sourceURL=Midi.js
+
 var Midi = (function() {
     
     // innerClass definations.

@@ -1,3 +1,5 @@
+//@ sourceURL=Track.js
+
 Midi.requireClass("MidiUtil");
 
 Midi.Track;
@@ -77,6 +79,7 @@ Midi.Track = function(channel) {
     
     /**
      * a channel must be set(from the cunstructor or manually using setChannel) before this method could return true.
+     * otherwise use #setEvent instead, parsing the channel manually.
      */
     self.setChannelEvent = function(tick, control, data) {
         
@@ -102,11 +105,14 @@ Midi.Track = function(channel) {
     
     /**
      * Only 1 instrument allowed for each track.
+     * a channel must be set(from the cunstructor or manually using setChannel) before this method could run properly.
+     * otherwise use #setEvent instead, parsing required data manually.
      */
     self.setInstrument = function(instrument) {
+        if (!buf.channel) return;
         // set meta description at tick 0.
         self.setEvent(0, 0xFF04, instrument);
-        self.setEvent(0, 0xC0 + channel, instrument);
+        self.setEvent(0, 0xC0 + buf.channel, instrument);
     };
     
     self.getInstrument = function() {

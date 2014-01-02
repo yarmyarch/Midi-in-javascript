@@ -1,7 +1,9 @@
+//@ sourceURL=TrackChunk.js
+
 Midi.requireClass("MidiUtil");
 Midi.requireClass("Track");
 
-Midi.TrackChunk;
+Midi.TrackChunk; // extends Track
 (function() {
     
 Midi.TrackChunk = function(channel) {

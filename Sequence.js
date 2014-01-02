@@ -1,3 +1,5 @@
+//@ sourceURL=Sequence.js
+
 Midi.requireClass("TrackChunk");
 Midi.requireClass("MidiUtil");
 // ### FlashPlayer NOT USED! Should define player with AudioAPI instead.

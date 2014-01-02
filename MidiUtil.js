@@ -1,3 +1,5 @@
+//@ sourceURL=MidiUtil.js
+
 var MidiUtil = (function() {
     
     var LC = {
@@ -24,6 +26,7 @@ var MidiUtil = (function() {
             return (byteFormat || _lc.BYTE).substr(0, len).concat(s);
         },
         
+        // be aware on extendable bit data.
         mergeTick : function(s) {
             
             var _lc = LC,
