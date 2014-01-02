@@ -151,4 +151,8 @@ Meta:
 tick:0   Meta     
 00000000 11111111 00000001
 
+End Tag:
+tick:0   Meta     
+XXXXXXXX 11111111 00101111 00000000
+
 */
