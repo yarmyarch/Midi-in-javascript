@@ -92,22 +92,49 @@ Midi.Sequence = function(midiType, frames) {
     };
     
     /**
+     * @param channel channel number for the new track.
+     *  the channel number starts from 0.
+     *  if this param is not given, a default channel number tat equals the number of currently added tracks will be used.
+     *  if channel number is bigger than 15, channel number & 0xF will always be used instead.
+     *  do nothing for type 0 sequence.
      * @return track added.
      */
-    self.addTrack = function() {
-        return buf.tracks.push(new Midi.SoundTrack());
+    self.addTrack = function(channel) {
+        if (!midiType) return;
+        buf.tracks.push(new Midi.SoundTrack(+channel || buf.tracks.length - 1) & 0xF);
+        return track;
     };
     
     /**
-     * @return track by id. return undefined if no tracks added.
-     *  note: id starts from 0, while 0 means the the first manually added track by function addTrack.
+     * @return track by id. return undefined if no tracks found.
+     *  note: id starts from 0, while 0 means the the track added automatically for static meta messages.
      */
     self.getTrack = function(id) {
-        return buf.tracks[Math.max(+id, 0) + 1];
+        return buf.tracks[id];
     };
     
+    /**
+     * @throw "Not a valid Midi.SoundTrack"
+     * @param id {int} track id.
+     * @param newTrack {Midi.SoundTrack} instanceof Midi.SoundTrack.
+     */
     self.replaceTrack = function(id, newTrack) {
-        //~ if 
+        if (!newTrack instanceof Midi.SoundTrack) throw(new Error(newTrack + " is not a valid Midi.SoundTrack."));
+        buf.tracks[id] = newTrack;
+    };
+    
+    self.removeTrack = function(id) {
+        var tracks = buf.tracks, tmp;
+        if (!tracks[id]) throw(new Error("Invalid index: " + id));
+        tmp = tracks[id];
+        tracks[id] = tracks[tracks.length - 1];
+        tracks[tracks.length - 1] = tmp;
+        tracks.length -= 1;
+        return tmp;
+    };
+    
+    self.getNumberOfTracks = function() {
+        return buf.tracks.length;
     };
     
     init();
