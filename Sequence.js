@@ -83,12 +83,12 @@ Midi.Sequence = function(midiType, frames) {
             _buf = buf,
             tracks = buf.tracks;
         // generate header first. Related attributes required.
-        result = result.concat(MidiUtil.getHeaderChunk(_buf.midiType, _buf.tracks.length, _buf.frames, useUint8));
+        result = result.concat(MidiUtil.getHeaderChunk(_buf.midiType, _buf.tracks.length, _buf.frames));
         
         for (var i in tracks) {
-            result = result.concat(tracks[i].toByteArray(useUint8));
+            result = result.concat(tracks[i].toByteArray());
         }
-        return result;
+        return useUint8 ? new Uint8Array(result) : result;
     };
     
     /**

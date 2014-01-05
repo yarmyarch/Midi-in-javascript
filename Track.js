@@ -56,17 +56,19 @@ Midi.Track = function(channel) {
             // a single message
             messages = _e[tick];
             for (var type in messages) {
-                result = result.concat(MidiUtil.getStandardArray(+tick - lastTick, type, messages[type], useUint8));
+                result = result.concat(MidiUtil.getStandardArray(+tick - lastTick, type, messages[type]));
             }
             lastTick = +tick;
         }
         
-        return result;
+        return useUint8 ? new Uint8Array(result) : result;
     };
     
     /**
      * Add and replace, if exist.
      * Events could be departed via their tick and type. if two events holding the same tick & type, we assume them the same event.
+     * tick = 0, type = 0x90, data = 0x407F
+     * 00000000 10010000 1000000 01111111
      */
     self.setEvent = function(tick, type, data) {
         
@@ -86,7 +88,7 @@ Midi.Track = function(channel) {
      */
     self.setChannelEvent = function(tick, control, data) {
         
-        if (buf.channel) return self.setEvent(tick, +control + buf.channel, data);
+        if (buf.channel != undefined) return self.setEvent(tick, +control + buf.channel, data);
         else return false;
     };
     
