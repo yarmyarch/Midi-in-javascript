@@ -56,7 +56,7 @@ var MidiUtil = (function() {
                 result = [];
             
             for (var i = 0; i < s.length; ++i) {
-                buf = _u.mergeByte(parseInt(s.charCodeAt(i), 10).toString(2));
+                buf = _u.mergeByte((s.charCodeAt(i)).toString(2));
                 length += buf.length;
                 result.push(buf);
             }
@@ -78,7 +78,7 @@ var MidiUtil = (function() {
         },
         
         int2ByteString : function(i) {
-            return util.mergeByte(parseInt(i, 10).toString(2));
+            return util.mergeByte((i).toString(2));
         },
         
         int2ByteArray : function(i, minByteCount) {
@@ -94,7 +94,7 @@ var MidiUtil = (function() {
         },
         
         int2TickString : function(i) {
-            return util.mergeTick(parseInt(i, 10).toString(2));
+            return util.mergeTick((i).toString(2));
         },
         
         int2TickArray : function(i, minByteCount) {
