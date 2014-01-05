@@ -1,6 +1,6 @@
 //@ sourceURL=Sequence.js
 
-Midi.requireClass("TrackChunk");
+Midi.requireClass("SoundTrack");
 Midi.requireClass("MidiUtil");
 // ### FlashPlayer NOT USED! Should define player with AudioAPI instead.
 //~ Midi.requireClass("FlashPlayer");
@@ -9,7 +9,7 @@ Midi.Sequence;
 (function() {
  
 G_LC = {
-    COPY_RIGHT : "©2013 by yarmyarch@live.cn - Dreamline Studio, all rights reserved."
+    COPY_RIGHT : "(c)2013 by yarmyarch@live.cn"
 };
 
 /**
@@ -35,7 +35,7 @@ Midi.Sequence = function(midiType, frames) {
         
         !isNaN(midiType % 3) && (buf.midiType = midiType % 3);
         
-        var track = new Midi.TrackChunk();
+        var track = new Midi.SoundTrack();
         buf.tracks.push(track);
         
         // set default info for the sequence, into the first track.
@@ -89,6 +89,25 @@ Midi.Sequence = function(midiType, frames) {
             result = result.concat(tracks[i].toByteArray());
         }
         return result;
+    };
+    
+    /**
+     * @return track added.
+     */
+    self.addTrack = function() {
+        return buf.tracks.push(new Midi.SoundTrack());
+    };
+    
+    /**
+     * @return track by id. return undefined if no tracks added.
+     *  note: id starts from 0, while 0 means the the first manually added track by function addTrack.
+     */
+    self.getTrack = function(id) {
+        return buf.tracks[Math.max(+id, 0) + 1];
+    };
+    
+    self.replaceTrack = function(id, newTrack) {
+        //~ if 
     };
     
     init();

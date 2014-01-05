@@ -1,25 +1,22 @@
-//@ sourceURL=TrackChunk.js
+//@ sourceURL=SoundTrack.js
 
 Midi.requireClass("MidiUtil");
 Midi.requireClass("Track");
 
-Midi.TrackChunk; // extends Track
+Midi.SoundTrack; // extends Track
 (function() {
     
-Midi.TrackChunk = function(channel) {
+Midi.SoundTrack = function(channel) {
     
     var self = this,
-        _super = {};
+        _super;
+    _super = Midi.Track.apply({}, arguments);
     
-    var init = function() {            
-        // extends Chunk.
-        self.__proto__ = self.prototype = _super = new Midi.Track(channel);
-        self.__proto__.constructor = self.prototype.constructor = Midi.Track;
-    };
+    for (var i in _super) {
+        self[i] = _super[i];
+    }
     
-    // overwrite the exsiting function to ByteArray, that add header info.
     self.toByteArray = function() {
-        
         var result = [];
         // MTrk
         result = result.concat([77, 84, 114, 107]);
@@ -28,8 +25,10 @@ Midi.TrackChunk = function(channel) {
         return result.concat(data);
     };
     
-    init();
     return self;
 };
-    
+
+Midi.SoundTrack.prototype = new Midi.Track();
+Midi.SoundTrack.prototype.constructor = Midi.SoundTrack;
+
 })();

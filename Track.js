@@ -6,7 +6,7 @@ Midi.Track;
 (function() {
     
 /**
- *@param type MThd/MTrk, header trunk or normal trunk.
+ *@param [channel] optional. Required if it's a channel related track.
  */
 Midi.Track = function(channel) {
     
@@ -48,6 +48,7 @@ Midi.Track = function(channel) {
             messages;
         
         // append the "ending" event.
+        if (!_e[buf.maxTick]) _e[buf.maxTick] = {};
         _e[buf.maxTick][0xFF2F] = 0;
         
         for (var tick in _e) {
