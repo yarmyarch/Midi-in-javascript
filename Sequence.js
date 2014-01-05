@@ -77,16 +77,16 @@ Midi.Sequence = function(midiType, frames) {
         return buf.frames;
     };
     
-    self.toByteArray = function() {
+    self.toByteArray = function(useUint8) {
         
         var result = [],
             _buf = buf,
             tracks = buf.tracks;
         // generate header first. Related attributes required.
-        result = result.concat(MidiUtil.getHeaderChunk(_buf.midiType, _buf.tracks.length, _buf.frames));
+        result = result.concat(MidiUtil.getHeaderChunk(_buf.midiType, _buf.tracks.length, _buf.frames, useUint8));
         
         for (var i in tracks) {
-            result = result.concat(tracks[i].toByteArray());
+            result = result.concat(tracks[i].toByteArray(useUint8));
         }
         return result;
     };
@@ -100,9 +100,9 @@ Midi.Sequence = function(midiType, frames) {
      * @return track added.
      */
     self.addTrack = function(channel) {
-        if (!midiType) return;
-        buf.tracks.push(new Midi.SoundTrack(+channel || buf.tracks.length - 1) & 0xF);
-        return track;
+        if (!buf.midiType) return;
+        buf.tracks.push(new Midi.SoundTrack((+channel || buf.tracks.length - 1) & 0xF));
+        return buf.tracks[buf.tracks.length - 1];
     };
     
     /**

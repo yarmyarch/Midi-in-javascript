@@ -42,7 +42,7 @@ Midi.Track = function(channel) {
         }
     };
     
-    self.toByteArray = function() {
+    self.toByteArray = function(useUint8) {
         var result = [],
             _e = buf.events,
             messages;
@@ -51,12 +51,14 @@ Midi.Track = function(channel) {
         if (!_e[buf.maxTick]) _e[buf.maxTick] = {};
         _e[buf.maxTick][0xFF2F] = 0;
         
+        var lastTick = 0;
         for (var tick in _e) {
             // a single message
             messages = _e[tick];
             for (var type in messages) {
-                result = result.concat(MidiUtil.getStandardArray(tick, type, messages[type]));
+                result = result.concat(MidiUtil.getStandardArray(+tick - lastTick, type, messages[type], useUint8));
             }
+            lastTick = +tick;
         }
         
         return result;
