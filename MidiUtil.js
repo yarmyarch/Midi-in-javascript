@@ -4,23 +4,6 @@ var MidiUtil = (function() {
     
     var LC = {
         BYTE : "00000000",
-        // hasp map for checking.
-        H_META_TYPE : {
-            0xFF : 1
-        },
-        H_SYSEX_TYPE : {
-            0xF0 : 1,
-            0xF7 : 1
-        },
-        H_SHORT_TYPE : {
-            0x80 : 1,   // note off
-            0x90 : 1,   // note on
-            0xa0 : 1,   // Polyphonic Key Pressure
-            0xb0 : 1,   // Control Change
-            0xc0 : 1,   // Program Change
-            0xd0 : 1,   // Channel Pressure
-            0xe0 : 1    // Pitch Wheel Change
-        },
         MAP_EN : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split(''),
         MAP_DE : {}
     };
@@ -137,49 +120,6 @@ var MidiUtil = (function() {
                 .concat(self.int2ByteString(+metaType))
                 .concat(self.int2TickString(data.length))
                 .concat(data);
-        },
-        
-        /**
-         * the length of data would be counted automatically.
-         * Unformated (length unknown) info for meta messages.
-         */
-        getMetaArray : function(tick, metaType, metaData, useUint8) {
-            
-            var data = self.ascii2ByteArray(metaData),
-                result = self.int2TickArray(+tick)
-                    .concat(0xFF)
-                    // less than 255
-                    .concat(+metaType)
-                    .concat(self.int2TickArray(data.length));
-            // data may not exist, for example FF 2F 0, the ending meta that is necessary for a track.
-            data && (result = result.concat(data));
-            
-            return useUint8 ? new Uint8Array(result) : result;
-        },
-        
-        /**
-         * Standard Midi data here, tick plus groups of data for each event, including system execulsive events (F0/F7).
-         * @param eventType 0xF0 / 0xF7 or anything else that may contains a channel information. for example 00 F7 01 FC - (pause at 0), 30 F7 01 FB (continue at 48 ticks count)
-         * @param data {int/array/string}
-         * the length of data would be counted automatically.
-         * The following two statments holds the same result:
-         *      MidiUtil.getMetaArray(0, 1, "something here");
-         *      MidiUtil.getStandardArray(0, 0xFF01, "something here");
-         */
-        getStandardArray : function(tick, eventType, data, useUint8) {
-            
-            var _lc = LC,
-                handler = (typeof(data)).toLowerCase() == "string" ? self.ascii2ByteArray : self.int2ByteArray,
-                // data is something like an array and not a string, count it as an array. other wise it's a string or a number.
-                data = data.length && handler != self.ascii2ByteArray ? data : handler(data),
-                result = self.int2TickArray(+tick)
-                    .concat(self.int2ByteArray(+eventType))
-                    // no length required if it's a short message.
-                    .concat(_lc.H_SHORT_TYPE[+eventType &0xF0] ? [] : self.int2TickArray(data.length));
-            // data may not exist, for example FF 2F 0, the ending meta that is necessary for a track.
-            data && (result = result.concat(data));
-            
-            return useUint8 ? new Uint8Array(result) : result;
         },
         
         /**

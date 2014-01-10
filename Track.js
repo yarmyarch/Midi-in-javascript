@@ -65,18 +65,22 @@ Midi.Track = function(channel) {
     };
     
     /**
-     * Add and replace, if exist.
-     * Events could be departed via their tick and type. if two events holding the same tick & type, we assume them the same event.
-     * tick = 0, type = 0x90, data = 0x407F
-     * 00000000 10010000 1000000 01111111
+     * Add event.
+     * Dulplicates allowed.
+     * @param tick {int} delta tick count from the start of the sequence.
+     * @param message {Midi.MidiMessage} message to be added.
+     * @see class Midi.MidiMessage
      */
-    self.setEvent = function(tick, type, data) {
+    self.addEvent = function(tick, message) {
+        
+        if (!message instanceof Midi.MidiMessage) return;
         
         var _e = buf.events;
         // it could not be an "end" event. The "end" would be added to the track automatically when generating the ByteArray.
         if (+type == 0xFF2F) return false;
         
-        !_e[tick] && (_e[tick] = {});
+        !_e[tick] && (_e[tick] = []);
+        //~ _e[tick][type] = data;
         _e[tick][type] = data;
         buf.maxTick = Math.max(buf.maxTick, tick);
         return true;
