@@ -70,6 +70,7 @@ Midi.Track = function(channel) {
      * @param tick {int} delta tick count from the start of the sequence.
      * @param message {Midi.MidiMessage} message to be added.
      * @see class Midi.MidiMessage
+     XXXXXXXX
      */
     self.addEvent = function(tick, message) {
         
