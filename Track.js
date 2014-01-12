@@ -4,42 +4,35 @@ Midi.requireClass("MidiUtil");
 
 Midi.Track;
 (function() {
-    
-/**
- *@param [channel] optional. Required if it's a channel related track.
- */
-Midi.Track = function(channel) {
+
+Midi.Track = function() {
     
     /**
      * An event contains the tick(as the key) and the message (as the value).
      * A messsage ccontains control type (as the key) and the data (as the value).
      * Example, note on channel 1 at a tone of 0x3F(max value 127) with the volum of 0x7F(max value 127) at tick 0, and note it off at tick 120:
         events = {
-            0   : {
-                0x90 : 0x3F7F,
-                0x90 : [63, 127],
+            0 : [
+                0x903F7F,
                 // other messages in tick 0
-            },
-            120 : {
-                0x80 : 0x3F7F,
-                0x80 : [63, 127],
-                // other messages in tick 1
-            }
+            ],
+            120 : [
+                0x803F7F,
+                // other messages in tick 120
+            ]
         }
      */
     var buf = {
             events : {},
             maxTick : 0,
-            channel : false
+            channel : false,
+            trackId : false
         },
         self = this;
       
     // construction
     var init = function() {
-        // set channel info if defined in the param.
-        if (channel != undefined) {
-            self.setChannel(channel);
-        }
+        
     };
     
     self.toByteArray = function(useUint8) {
@@ -70,35 +63,35 @@ Midi.Track = function(channel) {
      * @param tick {int} delta tick count from the start of the sequence.
      * @param message {Midi.MidiMessage} message to be added.
      * @see class Midi.MidiMessage
-     XXXXXXXX
      */
     self.addEvent = function(tick, message) {
         
-        if (!message instanceof Midi.MidiMessage) return;
+        if (!message instanceof Midi.MidiMessage) {
+            throw(new Error(message + " is not a valid Midi.MidiMessage."));
+        }
+        if (isNaN(tick = +tick)) {
+            throw(new Error("Invalid tick number: " + tick));
+        }
         
-        var _e = buf.events;
+        var _e = buf.events,
+            type = message.getType();
+        
         // it could not be an "end" event. The "end" would be added to the track automatically when generating the ByteArray.
         if (+type == 0xFF2F) return false;
         
         !_e[tick] && (_e[tick] = []);
-        //~ _e[tick][type] = data;
-        _e[tick][type] = data;
+        _e[tick].push(message);
+        
+        
         buf.maxTick = Math.max(buf.maxTick, tick);
         return true;
     };
     
-    /**
-     * a channel must be set(from the cunstructor or manually using setChannel) before this method could return true.
-     * otherwise use #setEvent instead, parsing the channel manually.
-     */
-    self.setChannelEvent = function(tick, control, data) {
-        
-        if (buf.channel != undefined) return self.setEvent(tick, +control + buf.channel, data);
-        else return false;
-    };
-    
     self.setChannel = function(newChannel) {
-        buf.channel = +newChannel & 0xF;
+        if (isNaN(newChannel = +newChannel)) {
+            throw(new Error("Invalid channel number: " + newChannel));
+        }
+        buf.channel = newChannel & 0xF;
         self.setEvent(0, 0xFF22, buf.channel);
     };
     
@@ -110,35 +103,22 @@ Midi.Track = function(channel) {
      * Optional.
      */
     self.setTrackId = function(trackId) {
+        if (isNaN(trackId = +trackId)) {
+            throw(new Error("Invalid trackId id: " + trackId));
+        }
+        buf.trackId = trackId;
         self.setEvent(0, 0xFF00, MidiUtil.int2ByteArray(+trackId, 2));
     };
     
     /**
-     * Only 1 instrument allowed for each track.
-     * a channel must be set(from the cunstructor or manually using setChannel) before this method could run properly.
-     * otherwise use #setEvent instead, parsing required data manually.
+     * Optional.
      */
-    self.setInstrument = function(instrument) {
-        if (!buf.channel) return;
-        // set meta description at tick 0.
-        self.setEvent(0, 0xFF04, instrument);
-        self.setEvent(0, 0xC0 + buf.channel, instrument);
-    };
-    
-    self.getInstrument = function() {
-        return self.getMessageInChannel(0, 0xC0);
+    self.getTrackId = function() {
+        return buf.trackId;
     };
     
     self.getMessagesByTick = function(tick) {
         return buf.events[tick];
-    };
-    
-    self.getMessageInChannel = function(tick, control) {
-        return buf.events[tick][control + buf.channel];
-    };
-    
-    self.getMessageByType = function(tick, type) {
-        return buf.events[tick][type];
     };
     
     init();
