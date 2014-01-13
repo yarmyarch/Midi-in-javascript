@@ -11,22 +11,24 @@ Midi.MidiMessage = function(type, data) {
     
     var LC = {
         // hasp map for checking.
-        H_META_TYPE : {
-            0xFF : 1
+        MESSAGE_TYPE = {            
+            META : {
+                0xFF : 1
+            },
+            SYSEX : {
+                0xF0 : 1,
+                0xF7 : 1
+            },
+            SHORT : {
+                0x80 : 1,   // note off
+                0x90 : 1,   // note on
+                0xa0 : 1,   // Polyphonic Key Pressure
+                0xb0 : 1,   // Control Change
+                0xc0 : 1,   // Program Change
+                0xd0 : 1,   // Channel Pressure
+                0xe0 : 1    // Pitch Wheel Change
+            }
         },
-        H_SYSEX_TYPE : {
-            0xF0 : 1,
-            0xF7 : 1
-        },
-        H_SHORT_TYPE : {
-            0x80 : 1,   // note off
-            0x90 : 1,   // note on
-            0xa0 : 1,   // Polyphonic Key Pressure
-            0xb0 : 1,   // Control Change
-            0xc0 : 1,   // Program Change
-            0xd0 : 1,   // Channel Pressure
-            0xe0 : 1    // Pitch Wheel Change
-        }
     };
     
     var midiUtil = MidiUtil;
@@ -36,25 +38,32 @@ Midi.MidiMessage = function(type, data) {
         data : false
     };
     
+    /**
+     * append type-judging functions for the message object:
+     * isMetaMessage
+     * isShortMessage
+     * isSysexMessage
+     * type list are defined in LC.MESSAGE_TYPE.
+     */
     var init = function(type, data) {
         self.setType(type);
         self.setData(data);
+        // append type judge functions
+        
+        var _lc = LC,
+            _buf = buf;
+        for (var i in _lc.MESSAGE_TYPE) {
+            self["is" + i.charAt(0).concat(i.substr(1).toLowerCase()) + "Message"] = (function(MessageType) {
+                return function() {
+                    return !!_lc.MESSAGE_TYPE[MessageType][_buf.type & 0xF0];
+                };
+            })(i);
+        }
     };
     
     /**
      * @param newType {int} 
-     *  supported type list:
-     *  H_META_TYPE : [ 0xFF : 1 ],
-     *  H_SYSEX_TYPE : [ 0xF0 : 1, 0xF7 : 1],
-     *  H_SHORT_TYPE : [
-     *      0x80 : 1,   // note off
-     *      0x90 : 1,   // note on
-     *      0xa0 : 1,   // Polyphonic Key Pressure
-     *      0xb0 : 1,   // Control Change
-     *      0xc0 : 1,   // Program Change
-     *      0xd0 : 1,   // Channel Pressure
-     *      0xe0 : 1    // Pitch Wheel Change
-     *  ]
+     *  check LC.MESSAGE_TYPE for supported type list.
      *  short message noteOn: 10010000 01111111 01111111
      *       = setType(0x90); 
      *       = setType(144); 
@@ -65,7 +74,7 @@ Midi.MidiMessage = function(type, data) {
     self.setType = function(newType) {
         var _lc = LC,
             testType = +newType & 0xFF;
-        if (!_lc[H_META_TYPE][testType] && !_lc[H_SYSEX_TYPE][testType] && !_lc[H_SHORT_TYPE][testType]) return;
+        if (!_lc.MESSAGE_TYPE.META[testType] && !_lc.MESSAGE_TYPE.SYSEX[testType] && !_lc.MESSAGE_TYPE.SHORT[testType]) return;
         buf.type = +newType;
     };
     
@@ -97,7 +106,7 @@ Midi.MidiMessage = function(type, data) {
         
         result = midiUtil.int2ByteArray(_buf.type)
             // no length required if it's a short message.
-            .concat(_lc.H_SHORT_TYPE[_buf.type &0xF0] ? [] : self.int2TickArray(data.length));
+            .concat(_lc.H_SHORT_TYPE[_buf.type & 0xF0] ? [] : self.int2TickArray(data.length));
         
         result = result.concat(data);
         return useUint8 ? new Uint8Array(result) : result;
@@ -127,6 +136,13 @@ Midi.MidiMessage = function(type, data) {
         data = data.length && handler != self.ascii2ByteArray ? data : handler(data);
         return return useUint8 ? new Uint8Array(data) : data;
     };
+    
+    /**
+     * appended in init.
+    self.isSysexMessage = function() {
+        return !!LC.H_SYSEX_TYPE[buf.type &0xF0];
+    };
+     */
     
     init(type, data);
     return self;
