@@ -2,6 +2,7 @@
 
 Midi.requireClass("SoundTrack");
 Midi.requireClass("MidiUtil");
+Midi.requireClass("MidiMessage");
 // ### FlashPlayer NOT USED! Should define player with AudioAPI instead.
 //~ Midi.requireClass("FlashPlayer");
 
@@ -41,17 +42,17 @@ Midi.Sequence = function(midiType, frames) {
         // set default info for the sequence, into the first track.
         // mainly about the copyright, and some other messags that might be required in future.
         // No channel info set in the first track.
-        track.setEvent(0, 0xFF02, _lc.COPY_RIGHT);
+        track.addEvent(0, new Midi.MidiMessage(0xFF02, _lc.COPY_RIGHT));
     };
     
     self.setCopyRight = function(text) {
         
-        buf.tracks[0].setEvent(0, 0xFF02, text);
+        buf.tracks[0].addEvent(0, new Midi.MidiMessage(0xFF02, text));
     };
     
     self.setName = function(text) {
         buf.name = text;
-        buf.tracks[0].setEvent(0, 0xFF03, text);
+        buf.tracks[0].addEvent(0, new Midi.MidiMessage(0xFF03, text));
     };
     
     self.getName = function() {

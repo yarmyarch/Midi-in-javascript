@@ -1,5 +1,6 @@
 //@ sourceURL=Track.js
 
+Midi.requireClass("MidiMessage");
 Midi.requireClass("MidiUtil");
 
 Midi.Track;
@@ -36,7 +37,9 @@ Midi.Track = function(channel) {
             eventCount : 0
         },
         self = this;
-      
+    
+    var midiUtil = MidiUtil;
+    
     // construction
     var init = function(channel) {
         if (channel) self.setChannel(channel);
@@ -65,10 +68,12 @@ Midi.Track = function(channel) {
                     // force turn short messages into given channel.
                     tmpMsg = new MidiMessage((tmpMsg.getType() & 0xF0) + _buf.channel, tmpMsg.getData());
                 }
-                result = result.concat(MidiUtil.int2TickArray(tick - lastTick)).concat(tmpMsg.toByteArray());
+                result = result.concat(midiUtil.int2TickArray(tick - lastTick)).concat(tmpMsg.toByteArray());
             }
             lastTick = tick;
         }
+        // append ending message at tick 0.
+        result = result.concat(midiUtil.int2TickArray(0)).concat(endingMessage.toByteArray());
         
         return useUint8 ? new Uint8Array(result) : result;
     };
@@ -94,7 +99,7 @@ Midi.Track = function(channel) {
             type = message.getType();
         
         // it could not be an "end" event. The "end" would be added to the track automatically when generating the ByteArray.
-        if (+type == 0xFF2F) return false;
+        if (type == 0xFF2F) return false;
         
         !_e[tick] && (_e[tick] = []);
         _e[tick].push(message);
@@ -171,7 +176,7 @@ Midi.Track = function(channel) {
             throw(new Error("Invalid channel number: " + newChannel));
         }
         buf.channel = newChannel & 0xF;
-        self.setEvent(0, 0xFF22, buf.channel);
+        self.addEvent(0, 0xFF22, buf.channel);
     };
     
     self.getChannel = function() {
@@ -186,7 +191,7 @@ Midi.Track = function(channel) {
             throw(new Error("Invalid trackId id: " + trackId));
         }
         buf.trackId = trackId;
-        self.setEvent(0, 0xFF00, MidiUtil.int2ByteArray(+trackId, 2));
+        self.addEvent(0, 0xFF00, midiUtil.int2ByteArray(+trackId, 2));
     };
     
     /**

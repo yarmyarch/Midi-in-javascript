@@ -28,11 +28,37 @@ arr = new Uint8Array(arr);
 var blob = new Blob([arr], {type:"audio/midi"});
 var url = URL.createObjectURL(blob);
 
-// XXXXXXXXXXXXXXX
 var seq = new Midi.Sequence(1, 10);
 var track = seq.addTrack(0);
 track.setChannelEvent(0, 144, 16511);
 track.setChannelEvent(0, 128, 16511);
+var blob = new Blob([seq.toByteArray(1)], {type:"audio/midi"});
+var url = URL.createObjectURL(blob);
+document.body.onclick = function() {
+    window.open(url);
+    document.body.onclick = "";
+}
+
+// XXXXXXXXXXXXXXX
+var seq = new Midi.Sequence(1, 24),
+    track = seq.getTrack(0);
+track.addEvent(0, new Midi.MidiMessage(0xc0, 0x11));
+track.addEvent(0, new Midi.MidiMessage(0x90, [63,127]));
+
+//~ for (var i = 0; i < 240; ++i) {
+    /*
+    MID : 1111 1000000
+    inH : 1984
+    Translatd : 00001111 01000000
+    Translatd : 00000000 01000000
+    TranslatdH : 3904
+    Total : 32639
+    */
+    //~ track.addEvent(1, new Midi.MidiMessage(0xE0, 3904 + i * 100));
+    track.addEvent(1, new Midi.MidiMessage(0xE0, [127,64]));
+//~ }
+
+track.addEvent(240, new Midi.MidiMessage(0x90, [63,127]));
 var blob = new Blob([seq.toByteArray(1)], {type:"audio/midi"});
 var url = URL.createObjectURL(blob);
 document.body.onclick = function() {

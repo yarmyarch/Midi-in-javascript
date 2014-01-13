@@ -79,8 +79,9 @@ var Midi = (function() {
         requireClass : function(className, forceReload) {
             
             var url = className + ".js";
+            
             // if exsit already
-            if (window[className]) return true;
+            if (window[className] || self[className]) return true;
             
             if (!buf.includedText[url] || forceReload) {
                 if (buf.includedText[url] = ajax.get(url, null, false)) {

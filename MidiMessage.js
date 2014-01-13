@@ -11,7 +11,7 @@ Midi.MidiMessage = function(type, data) {
     
     var LC = {
         // hasp map for checking.
-        MESSAGE_TYPE = {            
+        MESSAGE_TYPE : {
             META : {
                 0xFF : 1
             },
@@ -28,7 +28,7 @@ Midi.MidiMessage = function(type, data) {
                 0xd0 : 1,   // Channel Pressure
                 0xe0 : 1    // Pitch Wheel Change
             }
-        },
+        }
     };
     
     var midiUtil = MidiUtil;
@@ -73,7 +73,13 @@ Midi.MidiMessage = function(type, data) {
      */
     self.setType = function(newType) {
         var _lc = LC,
-            testType = +newType & 0xFF;
+            testType = +newType;
+        
+        if (testType >= 0xFF00) {
+            testType = testType >> 8;
+        }
+        testType = testType & 0xFF;
+        
         if (!_lc.MESSAGE_TYPE.META[testType] && !_lc.MESSAGE_TYPE.SYSEX[testType] && !_lc.MESSAGE_TYPE.SHORT[testType]) return;
         buf.type = +newType;
     };
@@ -106,7 +112,7 @@ Midi.MidiMessage = function(type, data) {
         
         result = midiUtil.int2ByteArray(_buf.type)
             // no length required if it's a short message.
-            .concat(_lc.H_SHORT_TYPE[_buf.type & 0xF0] ? [] : self.int2TickArray(data.length));
+            .concat(_lc.MESSAGE_TYPE.SHORT[_buf.type & 0xF0] ? [] : midiUtil.int2TickArray(data.length));
         
         result = result.concat(data);
         return useUint8 ? new Uint8Array(result) : result;
@@ -127,14 +133,14 @@ Midi.MidiMessage = function(type, data) {
         var _buf = buf,
             data = _buf.data;
         
-        if (_buf.data === false) return [];
+        if (data === false) return [];
         
         var _lc = LC,
             handler = (typeof(data)).toLowerCase() == "string" ? midiUtil.ascii2ByteArray : midiUtil.int2ByteArray;
         
         // if data is something like an array but not a string, count it as an array. Otherwise it's a string or a number.
-        data = data.length && handler != self.ascii2ByteArray ? data : handler(data);
-        return return useUint8 ? new Uint8Array(data) : data;
+        data = data.length && (handler != midiUtil.ascii2ByteArray) ? data : handler(data);
+        return useUint8 ? new Uint8Array(data) : data;
     };
     
     /**
