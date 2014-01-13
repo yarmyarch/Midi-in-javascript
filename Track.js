@@ -38,27 +38,36 @@ Midi.Track = function(channel) {
         self = this;
       
     // construction
-    var init = function() {
-        
+    var init = function(channel) {
+        if (channel) self.setChannel(channel);
     };
     
     self.toByteArray = function(useUint8) {
         var result = [],
-            _e = buf.events,
-            messages;
+            _buf = buf,
+            _e = _buf.events,
+            messages,
+            message,
+            tmpMsg,
+            endingMessage = new Midi.MidiMessage(0xFF2F, 0),
+            lastTick = 0;
         
+        var i;
         // append the "ending" event.
-        if (!_e[buf.maxTick]) _e[buf.maxTick] = {};
-        _e[buf.maxTick][0xFF2F] = 0;
-        
-        var lastTick = 0;
         for (var tick in _e) {
             // a single message
             messages = _e[tick];
-            for (var type in messages) {
-                result = result.concat(MidiUtil.getStandardArray(+tick - lastTick, type, messages[type]));
+            tick = +tick;
+            for (i = 0, message; message = messages[i]; ++i) {
+                tmpMsg = message;
+                // prevent changing original data
+                if (message.isShortMessage() && _buf.channel) {
+                    // force turn short messages into given channel.
+                    tmpMsg = new MidiMessage((tmpMsg.getType() & 0xF0) + _buf.channel, tmpMsg.getData());
+                }
+                result = result.concat(MidiUtil.int2TickArray(tick - lastTick)).concat(tmpMsg.toByteArray());
             }
-            lastTick = +tick;
+            lastTick = tick;
         }
         
         return useUint8 ? new Uint8Array(result) : result;
@@ -187,7 +196,7 @@ Midi.Track = function(channel) {
         return buf.trackId;
     };
     
-    init();
+    init(channel);
     return self;
 };
 })();
