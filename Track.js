@@ -5,7 +5,13 @@ Midi.requireClass("MidiUtil");
 Midi.Track;
 (function() {
 
-Midi.Track = function() {
+/**
+ * @param channel {int} optional, 0-15.
+ *  if any channel set for the track, when trying to generate byte array,
+ *  all channel related events would be bind to the set channel.
+ *  but that only happens when calling function toByteArray, the message won't be changed itself.
+ */
+Midi.Track = function(channel) {
     
     /**
      * An event contains the tick(as the key) and the message (as the value).
@@ -26,7 +32,8 @@ Midi.Track = function() {
             events : {},
             maxTick : 0,
             channel : false,
-            trackId : false
+            trackId : false,
+            eventCount : 0
         },
         self = this;
       
@@ -73,7 +80,8 @@ Midi.Track = function() {
             throw(new Error("Invalid tick number: " + tick));
         }
         
-        var _e = buf.events,
+        var _buf = buf,
+            _e = _buf.events,
             type = message.getType();
         
         // it could not be an "end" event. The "end" would be added to the track automatically when generating the ByteArray.
@@ -82,11 +90,73 @@ Midi.Track = function() {
         !_e[tick] && (_e[tick] = []);
         _e[tick].push(message);
         
-        
-        buf.maxTick = Math.max(buf.maxTick, tick);
+        ++_buf.eventCount;
+        _buf.maxTick = Math.max(_buf.maxTick, tick);
         return true;
     };
     
+    /**
+     * find a specific message that is bytely the same as the given one at a certain tick.
+     * @return {MidiMessage} null if nothing found.
+     */
+    self.getMessage = function(tick, message) {
+        
+        if (!message instanceof Midi.MidiMessage) {
+            throw(new Error(message + " is not a valid Midi.MidiMessage."));
+        }
+        var messages = buf.events[tick],
+            targetMsg = message.toByteArray().join(" ");
+        if (!messages || !messages.length) return null;
+        for (var i = 0, innerMsg; innerMsg = messages[i]; ++i) {
+            if (innerMsg.toByteArray().join(" ") == targetMsg) return messages[i];
+        }
+        return null;
+    };
+    
+    self.getMessagesByTick = function(tick) {
+        return buf.events[tick];
+    };
+    
+    /**
+     * remove a specific message that is bytely the same as the given one in at certain tick.
+     * @return {MidiMessage} the removed message, null if nothing found.
+     */
+    self.removeMessage = function(tick, message) {
+        
+        if (!message instanceof Midi.MidiMessage) {
+            throw(new Error(message + " is not a valid Midi.MidiMessage."));
+        }
+        var messages = buf.events[tick],
+            targetMsg = message.toByteArray().join(" "),
+            tmpMsg;
+        if (!messages || !messages.length) return null;
+        for (var i = 0, innerMsg; innerMsg = messages[i]; ++i) {
+            // find it.
+            if (innerMsg.toByteArray().join(" ") == targetMsg) {
+                tmpMsg = messages[messages.length - 1];
+                messages[messages.length - 1] = innerMsg;
+                messages[i] = tmpMsg;
+                messages.length -= 1;
+                --buf.eventCount;
+                return innerMsg;
+            }
+        }
+        return null;
+    };
+    
+    self.removeMessagesByTick = function(tick) {
+        var _buf = buf;
+        _buf.eventCount -= (_buf.events[tick] && _buf.events[tick].length);
+        _buf.events[tick] = null;
+    };
+    
+    self.getNumberOfEvents = function() {
+        return buf.eventCount;
+    };
+    
+    /**
+     *
+     */
     self.setChannel = function(newChannel) {
         if (isNaN(newChannel = +newChannel)) {
             throw(new Error("Invalid channel number: " + newChannel));
@@ -115,10 +185,6 @@ Midi.Track = function() {
      */
     self.getTrackId = function() {
         return buf.trackId;
-    };
-    
-    self.getMessagesByTick = function(tick) {
-        return buf.events[tick];
     };
     
     init();
