@@ -69,8 +69,8 @@ Midi.Track = function(channel) {
                     tmpMsg = new MidiMessage((tmpMsg.getType() & 0xF0) + _buf.channel, tmpMsg.getData());
                 }
                 result = result.concat(midiUtil.int2TickArray(tick - lastTick)).concat(tmpMsg.toByteArray());
+                lastTick = tick;
             }
-            lastTick = tick;
         }
         // append ending message at tick 0.
         result = result.concat(midiUtil.int2TickArray(0)).concat(endingMessage.toByteArray());
@@ -107,6 +107,10 @@ Midi.Track = function(channel) {
         ++_buf.eventCount;
         _buf.maxTick = Math.max(_buf.maxTick, tick);
         return true;
+    };
+    
+    self.getEvents = function() {
+        return buf.events;
     };
     
     /**

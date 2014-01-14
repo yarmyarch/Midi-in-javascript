@@ -43,22 +43,17 @@ document.body.onclick = function() {
 var seq = new Midi.Sequence(1, 24),
     track = seq.getTrack(0);
 track.addEvent(0, new Midi.MidiMessage(0xc0, 0x11));
-track.addEvent(0, new Midi.MidiMessage(0x90, [63,127]));
+track.addEvent(0, new Midi.MidiMessage(0xB0, [124,0])); // omni on
+track.addEvent(0, new Midi.MidiMessage(0xB0, [126,1])); // mono on & omni on
+track.addEvent(0, new Midi.MidiMessage(0x90, [60,127]));
+track.addEvent(240, new Midi.MidiMessage(0x80, [60,127]));
 
-//~ for (var i = 0; i < 240; ++i) {
-    /*
-    MID : 1111 1000000
-    inH : 1984
-    Translatd : 00001111 01000000
-    Translatd : 00000000 01000000
-    TranslatdH : 3904
-    Total : 32639
-    */
+for (var i = 1; i <= 144; ++i) {
     //~ track.addEvent(1, new Midi.MidiMessage(0xE0, 3904 + i * 100));
-    track.addEvent(1, new Midi.MidiMessage(0xE0, [127,64]));
-//~ }
+    track.addEvent(96 + i, new Midi.MidiMessage(0xA0, [60, 127 - ~~((127 / 144) * i)]));
+    track.addEvent(96 + i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 144) * i)]));
+}
 
-track.addEvent(240, new Midi.MidiMessage(0x90, [63,127]));
 var blob = new Blob([seq.toByteArray(1)], {type:"audio/midi"});
 var url = URL.createObjectURL(blob);
 document.body.onclick = function() {
