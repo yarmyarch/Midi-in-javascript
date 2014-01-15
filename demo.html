@@ -29,7 +29,7 @@ body {
 <body>
 打开控制台<br>
 MIDI嗨起来<br>
-——以上纯属扯淡。<br>
+——以上纯属扯淡，by 扣钉骑士<br>
 Well forget it, let's play something here.<br>
 Let's say we're trying to generat something like it shown below:
 <div class="clear"></div>
@@ -251,7 +251,7 @@ and <input type="button" id="generate" value="generate" />
 
         for (var i = 1; i <= 240; ++i) {
             track.addEvent(i, new Midi.MidiMessage(0xB0, [11, 127 - ~~((127 / 240) * i)]));
-            track.addEvent(96 + i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 144) * i)]));
+            track.addEvent(i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 240) * i)]));
         }
 
         var blob = new Blob([seq.toByteArray(1)], {type:"audio/midi"});
@@ -260,6 +260,9 @@ and <input type="button" id="generate" value="generate" />
         document.getElementById("download").onclick = function() {
             window.open(url);
         }
+    }
+    document.getElementById("instrument").onchange = function(e) {
+        document.getElementById("downloadWrap").style.display = "none";
     }
 </script>
 </body>

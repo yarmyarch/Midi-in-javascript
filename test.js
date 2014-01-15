@@ -10,7 +10,7 @@ track.addEvent(240, new Midi.MidiMessage(0x80, [60,127]));
 
 for (var i = 1; i <= 240; ++i) {
     track.addEvent(i, new Midi.MidiMessage(0xB0, [11, 127 - ~~((127 / 240) * i)]));
-    track.addEvent(96 + i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 144) * i)]));
+    track.addEvent(i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 240) * i)]));
 }
 
 var blob = new Blob([seq.toByteArray(1)], {type:"audio/midi"});
