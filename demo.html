@@ -236,7 +236,7 @@ and <input type="button" id="generate" value="generate" />
 <script type="text/javascript" src="Midi.js"></script>
 <script type="text/javascript" src="Sequence.js"></script>
 <script type="text/javascript">
-    document.getElementById("generate").click = function(e) {
+    document.getElementById("generate").onclick = function(e) {
         var seq = new Midi.Sequence(1, 24),
             track = seq.getTrack(0);
 
