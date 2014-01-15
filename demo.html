@@ -1,0 +1,264 @@
+<!DOCTYPE html >
+<html>
+<head>
+<title>Touch the sky</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+body {
+    padding:1% 2%;
+}
+.prettyprint {
+    font-size:0.8em;
+    background-color:#CCC;
+    border:1px solid #999;
+    box-shadow:1px 1px 12px #999;
+    float:left;
+    clear:both;
+    padding:12px;
+}
+.prettyprint:hover {
+    background-color:#EEE;
+}
+.clear {
+    clear:both;
+}
+</style>
+</head>
+<body>
+打开控制台<br>
+MIDI嗨起来<br>
+——以上纯属扯淡。<br>
+Well forget it, let's play something here.<br>
+Let's say we're trying to generat something like it shown below:
+<div class="clear"></div>
+<pre class="prettyprint linenums">
+/**
+ * 
+ *
+01001101 01010100 01101000 01100100 // MThd
+00000000 00000000 00000000 00000110 // header lentgh: 6 bytes
+00000000 00000001                   // Midi Type: 1
+00000000 00000001                   // Track count: 1
+00000000 00011000                   // Division: 48 ticks / second
+
+01001101 01010100 01110010 01101011 // MTrk
+00000000 00000000 00000111 10111011 // Track Length: 955 bytes - length-fixable data
+00000000 11111111 00000010 00011100 // tick 0, 0xFF 0x02 0x1C - CopyRight, length: 28 bytes
+00101000 01100011 00101001 00110010 // CopyRight Contents in 28 bytes.
+00110000 00110001 00110011 00100000
+01100010 01111001 00100000 01111001
+01100001 01110010 01101101 01111001
+01100001 01110010 01100011 01101000
+01000000 01101100 01101001 01110110
+01100101 00101110 01100011 01101110
+
+00000000 11000000 00001011          // Program Change
+00000000 10010000 00111100 01111111 // Note On
+00000001 10110000 00001011 01111111 // 0xB0 0x11 0x7F
+00000000 11100000 00000000 01000000 // 0xE0 0x00 0x40
+00000001 10110000 00001011 01111111
+00000000 11100000 00000000 01000000
+00000001 10110000 00001011 01111110
+00000000 11100000 00000000 01000001 // 0xE0 0x00 0x41
+                                    // 117 No.11 Controller
+00000001 10110000 00000001 01111111 // 0xB0 0x01 0x7F
+                                    // 120 No.11 Controller
+00000001 10110000 00001011 00000000 // 0xB0 0x11 0x00
+00000000 11100000 00000000 01111111 // 0xE0 0x00 0x7F
+00000000 10000000 00111100 00111111 // Note Off
+
+00000000 11111111 00101111 00000000 // tick 0, 0xFF 0x2F 0x00 - End of Track Chunk
+ */
+</pre>
+<div class="clear"></div>
+And here comes the scirpt for that, play it in the console:
+<div class="clear"></div>
+<pre class="prettyprint linenums">
+var seq = new Midi.Sequence(1, 24),
+    track = seq.getTrack(0);
+
+track.addEvent(0, new Midi.MidiMessage(0xc0, 0x11));        // Program Change to No.11
+track.addEvent(0, new Midi.MidiMessage(0xB0, [124,0]));     // omni on
+track.addEvent(0, new Midi.MidiMessage(0xB0, [126,1]));     // mono on & omni on
+track.addEvent(0, new Midi.MidiMessage(0x90, [60,127]));    // Note On Key 0x3C
+track.addEvent(120, new Midi.MidiMessage(0xB0, [1,127]));   // Vibrato Controller
+track.addEvent(240, new Midi.MidiMessage(0x80, [60,127]));  // Note Off
+
+// Apply Voice Change and Pitch Wheel Change
+for (var i = 1; i <= 240; ++i) {
+    track.addEvent(i, new Midi.MidiMessage(0xB0, [11, 127 - ~~((127 / 240) * i)]));
+    track.addEvent(i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 240) * i)]));
+}
+
+// Click & Download
+var blob = new Blob([seq.toByteArray(1)], {type:"audio/midi"});
+var url = URL.createObjectURL(blob);
+document.body.onclick = function() {
+    window.open(url);
+    document.body.onclick = "";
+}
+</pre>
+<div class="clear"></div>
+Or you may want to <br>
+select from an instrument here 
+<select id="instrument">
+    <option value="0">0-Acoustic Grand Piano</option>
+    <option value="1">1-Bright Acoustic Piano</option>
+    <option value="2">2-Electric Grand Piano</option>
+    <option value="3">3-Honky-tonk Piano</option>
+    <option value="4">4-Rhodes Piano</option>
+    <option value="5">5-Chorused Piano</option>
+    <option value="6">6-Harpsichord</option>
+    <option value="7">7-Clavichord</option>
+    <option value="8">8-Celesta</option>
+    <option value="9">9-Glockenspiel</option>
+    <option value="10">10-Music box</option>
+    <option value="11" selected>11-Vibraphone</option>
+    <option value="12">12-Marimba</option>
+    <option value="13">13-Xylophone</option>
+    <option value="14">14-Tubular Bells</option>
+    <option value="15">15-Dulcimer</option>
+    <option value="16">16-Hammond Organ</option>
+    <option value="17">17-Percussive Organ</option>
+    <option value="18">18-Rock Organ</option>
+    <option value="19">19-Church Organ</option>
+    <option value="20">20-Reed Organ</option>
+    <option value="21">21-Accordian</option>
+    <option value="22">22-Harmonica</option>
+    <option value="23">23-Tango Accordian</option>
+    <option value="24">24-Acoustic Guitar (nylon)</option>
+    <option value="25">25-Acoustic Guitar (steel)</option>
+    <option value="26">26-Electric Guitar (jazz)</option>
+    <option value="27">27-Electric Guitar (clean)</option>
+    <option value="28">28-Electric Guitar (muted)</option>
+    <option value="29">29-Overdriven Guitar</option>
+    <option value="30">30-Distortion Guitar</option>
+    <option value="31">31-Guitar Harmonics</option>
+    <option value="32">32-Acoustic Bass</option>
+    <option value="33">33-Electric Bass(finger)</option>
+    <option value="34">34-Electric Bass (pick)</option>
+    <option value="35">35-Fretless Bass</option>
+    <option value="36">36-Slap Bass 1</option>
+    <option value="37">37-Slap Bass 2</option>
+    <option value="38">38-Synth Bass 1</option>
+    <option value="39">39-Synth Bass 2</option>
+    <option value="40">40-Violin</option>
+    <option value="41">41-Viola</option>
+    <option value="42">42-Cello</option>
+    <option value="43">43-Contrabass</option>
+    <option value="44">44-Tremolo Strings</option>
+    <option value="45">45-Pizzicato Strings</option>
+    <option value="46">46-Orchestral Harp</option>
+    <option value="47">47-Timpani</option>
+    <option value="48">48-String Ensemble 1</option>
+    <option value="49">49-String Ensemble 2</option>
+    <option value="50">50-Synth Strings 1</option>
+    <option value="51">51-Synth Strings 2</option>
+    <option value="52">52-Choir Aahs</option>
+    <option value="53">53-Voice Oohs</option>
+    <option value="54">54-Synth Voice</option>
+    <option value="55">55-Orchestra Hit</option>
+    <option value="56">56-Trumpet</option>
+    <option value="57">57-Trombone</option>
+    <option value="58">58-Tuba</option>
+    <option value="59">59-Muted Trumpet</option>
+    <option value="60">60-French Horn</option>
+    <option value="61">61-Brass Section</option>
+    <option value="62">62-Synth Brass 1</option>
+    <option value="63">63-Synth Brass 2</option>
+    <option value="64">64-Soprano Sax</option>
+    <option value="65">65-Alto Sax</option>
+    <option value="66">66-Tenor Sax</option>
+    <option value="67">67-Baritone Sax</option>
+    <option value="68">68-Oboe</option>
+    <option value="69">69-English Horn</option>
+    <option value="70">70-Bassoon</option>
+    <option value="71">71-Clarinet</option>
+    <option value="72">72-Piccolo</option>
+    <option value="73">73-Flute</option>
+    <option value="74">74-Recorder</option>
+    <option value="75">75-Pan Flute</option>
+    <option value="76">76-Bottle Blow</option>
+    <option value="77">77-Shakuhachi</option>
+    <option value="78">78-Whistle</option>
+    <option value="79">79-Ocarina</option>
+    <option value="80">80-Lead 1 (square)</option>
+    <option value="81">81-Lead 2 (sawtooth)</option>
+    <option value="82">82-Lead 3 (caliope lead)</option>
+    <option value="83">83-Lead 4 (chiff lead)</option>
+    <option value="84">84-Lead 5 (charang)</option>
+    <option value="85">85-Lead 6 (voice)</option>
+    <option value="86">86-Lead 7 (fifths)</option>
+    <option value="87">87-Lead 8 (bass+lead)</option>
+    <option value="88">88-Pad 1 (new age)</option>
+    <option value="89">89-Pad 2 (warm)</option>
+    <option value="90">90-Pad 3 (polysynth)</option>
+    <option value="91">91-Pad 4 (choir)</option>
+    <option value="92">92-Pad 5 (bowed)</option>
+    <option value="93">93-Pad 6 (metallic)</option>
+    <option value="94">94-Pad 7 (halo)</option>
+    <option value="95">95-Pad 8 (sweep)</option>
+    <option value="96">96-FX 1 (rain)</option>
+    <option value="97">97-FX 2 (soundtrack)</option>
+    <option value="98">98-FX 3 (crystal)</option>
+    <option value="99">99-FX 4 (atmosphere)</option>
+    <option value="100">100-FX 5 (brightness)</option>
+    <option value="101">101-FX 6 (goblins)</option>
+    <option value="102">102-FX 7 (echoes)</option>
+    <option value="103">103-FX 8 (sci-fi)</option>
+    <option value="104">104-Sitar</option>
+    <option value="105">105-Banjo</option>
+    <option value="106">106-Shamisen</option>
+    <option value="107">107-Koto</option>
+    <option value="108">108-Kalimba</option>
+    <option value="109">109-Bagpipe</option>
+    <option value="110">110-Fiddle</option>
+    <option value="111">111-Shanai</option>
+    <option value="112">112-Tinkle Bell</option>
+    <option value="113">113-Agogo</option>
+    <option value="114">114-Steel Drums</option>
+    <option value="115">115-Woodblock</option>
+    <option value="116">116-Taiko Drum</option>
+    <option value="117">117-Melodic Tom</option>
+    <option value="118">118-Synth Drum</option>
+    <option value="119">119-Reverse Cymbal</option>
+    <option value="120">120-Guitar Fret Noise</option>
+    <option value="121">121-Breath Noise</option>
+    <option value="122">122-Seashore</option>
+    <option value="123">123-Bird Tweet</option>
+    <option value="124">124-Telephone Ring</option>
+    <option value="125">125-Helicopter</option>
+    <option value="126">126-Applause</option>
+    <option value="127">127-Gunshot</option>
+</select>
+and <input type="button" id="generate" value="generate" />
+<span id="downloadWrap" style="display:none">, then <input type="button" id="download" value="download" /> it here.</span>
+<script type="text/javascript" src="Midi.js"></script>
+<script type="text/javascript" src="Sequence.js"></script>
+<script type="text/javascript">
+    document.getElementById("generate").click = function(e) {
+        var seq = new Midi.Sequence(1, 24),
+            track = seq.getTrack(0);
+
+        track.addEvent(0, new Midi.MidiMessage(0xc0, +(document.getElementById("instrument").value || 0x11)));
+        track.addEvent(0, new Midi.MidiMessage(0xB0, [124,0])); // omni on
+        track.addEvent(0, new Midi.MidiMessage(0xB0, [126,1])); // mono on & omni on
+        track.addEvent(0, new Midi.MidiMessage(0x90, [60,127]));
+        track.addEvent(120, new Midi.MidiMessage(0xB0, [1,127]));
+        track.addEvent(240, new Midi.MidiMessage(0x80, [60,127]));
+
+        for (var i = 1; i <= 240; ++i) {
+            track.addEvent(i, new Midi.MidiMessage(0xB0, [11, 127 - ~~((127 / 240) * i)]));
+            track.addEvent(96 + i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 144) * i)]));
+        }
+
+        var blob = new Blob([seq.toByteArray(1)], {type:"audio/midi"});
+        var url = URL.createObjectURL(blob);
+        document.getElementById("downloadWrap").style.display = "";
+        document.getElementById("download").onclick = function() {
+            window.open(url);
+        }
+    }
+</script>
+</body>
+</html>
