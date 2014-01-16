@@ -527,8 +527,8 @@ document.body.onclick = function() {
     document.body.onclick = "";
 }
 </pre>
-　　你也可以<a href="http://yarmyarch.github.io/Midi-in-javascript/demo.html" target="_blank">到这里来现场玩一玩</a>，或者<a href="https://github.com/yarmyarch/Midi-in-javascript" target="_blank">点击这里查看源码</a>。<br>
-<h2><a name="midi_play" id="midi_play"></a>附录</h2>MIDI实时播放</li>
+　　你也可以<a href="http://yarmyarch.github.io/Midi-in-javascript/demo.html" target="_blank">到这里来现场玩一玩</a>，或者<a href="https://github.com/yarmyarch/Midi-in-javascript" target="_blank">点击这里查看源码</a>。
+<h2><a name="midi_play" id="midi_play"></a>MIDI实时播放</h2>
 　　当然把一个Midi乐谱下载到本地用GS波表软件合成器播放肯定是不存在问题的。但是对于一个存在实时交互的系统，合成器应当能够对用户输入做出反应，这是“下载文件并交由本地合成器播放”策略所不能解决的问题。<br>
 　　设想我们希望在浏览器端创建最初所提到的完整数字音乐模拟系统，允许用户自由创作音符并实时对以创作的内容进行修改，该模拟应当可以对用户的输入进行反馈，即提供按键或操作的声音预览。前文中我们致力于并成功解决了<b>用Javascript解析和封装Midi乐谱</b>的问题，下一个问题是：<b>产生的Midi序列如何实时播放？</b>
 　　浏览器不能直接解析Midi文件，因为浏览器中并不集成音色库，也没有合成器。访问声卡合成器的功能就别想了，几年内是出不来的，看看使用显卡的硬件加速进程就知道。不过仍然有多种方法可供选择。</b>
