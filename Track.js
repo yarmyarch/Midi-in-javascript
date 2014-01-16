@@ -1,6 +1,6 @@
 //@ sourceURL=Track.js
 
-Midi.requireClass("MidiMessage");
+Midi.requireClass("Message");
 Midi.requireClass("MidiUtil");
 
 Midi.Track;
@@ -52,7 +52,7 @@ Midi.Track = function(channel) {
             messages,
             message,
             tmpMsg,
-            endingMessage = new Midi.MidiMessage(0xFF2F, 0),
+            endingMessage = new Midi.Message(0xFF2F, 0),
             lastTick = 0;
         
         var i;
@@ -66,7 +66,7 @@ Midi.Track = function(channel) {
                 // prevent changing original data
                 if (message.isShortMessage() && _buf.channel) {
                     // force turn short messages into given channel.
-                    tmpMsg = new MidiMessage((tmpMsg.getType() & 0xF0) + _buf.channel, tmpMsg.getData());
+                    tmpMsg = new Message((tmpMsg.getType() & 0xF0) + _buf.channel, tmpMsg.getData());
                 }
                 result = result.concat(midiUtil.int2TickArray(tick - lastTick)).concat(tmpMsg.toByteArray());
                 lastTick = tick;
@@ -82,13 +82,13 @@ Midi.Track = function(channel) {
      * Add event.
      * Dulplicates allowed.
      * @param tick {int} delta tick count from the start of the sequence.
-     * @param message {Midi.MidiMessage} message to be added.
-     * @see class Midi.MidiMessage
+     * @param message {Midi.Message} message to be added.
+     * @see class Midi.Message
      */
     self.addEvent = function(tick, message) {
         
-        if (!message instanceof Midi.MidiMessage) {
-            throw(new Error(message + " is not a valid Midi.MidiMessage."));
+        if (!message instanceof Midi.Message) {
+            throw(new Error(message + " is not a valid Midi.Message."));
         }
         if (isNaN(tick = +tick)) {
             throw(new Error("Invalid tick number: " + tick));
@@ -115,12 +115,12 @@ Midi.Track = function(channel) {
     
     /**
      * find a specific message that is bytely the same as the given one at a certain tick.
-     * @return {MidiMessage} null if nothing found.
+     * @return {Message} null if nothing found.
      */
     self.getMessage = function(tick, message) {
         
-        if (!message instanceof Midi.MidiMessage) {
-            throw(new Error(message + " is not a valid Midi.MidiMessage."));
+        if (!message instanceof Midi.Message) {
+            throw(new Error(message + " is not a valid Midi.Message."));
         }
         var messages = buf.events[tick],
             targetMsg = message.toByteArray().join(" ");
@@ -137,12 +137,12 @@ Midi.Track = function(channel) {
     
     /**
      * remove a specific message that is bytely the same as the given one in at certain tick.
-     * @return {MidiMessage} the removed message, null if nothing found.
+     * @return {Message} the removed message, null if nothing found.
      */
     self.removeMessage = function(tick, message) {
         
-        if (!message instanceof Midi.MidiMessage) {
-            throw(new Error(message + " is not a valid Midi.MidiMessage."));
+        if (!message instanceof Midi.Message) {
+            throw(new Error(message + " is not a valid Midi.Message."));
         }
         var messages = buf.events[tick],
             targetMsg = message.toByteArray().join(" "),

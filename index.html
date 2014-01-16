@@ -467,10 +467,10 @@ document.body.onclick = function() {
 <div class="img"><img src="http://yarmyarch.com/workspace/midi/uml.png" style="max-width:673px;margin:0 auto;"/></div>
 　　对于这个结构鄙人思索良久。对于大量事件中的特定事件进行增删改查操作是一件相当蛋疼的事，以至于最初在Java中我们只能采用遍历来实现。或许我们仍然可以沿用Java中关于时间戳的天才设计——<b>事件tick表示从Sequence开始播放时到当前事件发生时的偏移量</b>。在这种设计下，可以基于时间戳哈希事件，提供高性能操作的可能性。<br>
 　　通过基于tick哈希的设计对上述UML图进行优化，我们可以很容易整理出如下的一些基本类，其核心为三个数据层：<b><i>Message</i></b>、<b><i>Track</i></b>和<b><i>Sequence</i></b>。
-<h4>MidiMessag</h4>
+<h4>Message</h4>
 　　Midi音序的基本数据单元，维护<i>type</i>和<i>data</i>两个字段并提供相应的增改功能，同时提供序列化支持。需要注意的是对于除通道类消息之外的消息类型，序列化时需要在type和data之间添加可变长度数表示的数据字段长度。
 <h4>Track</h4>
-　　基于tick哈希设计的MidiMessage容器。此处由于需要对tick进行直接管理，因此在MidiMessage类和Track类中间省略MidiEvent层。作为容器对象，提供基本的容器操作，并提供序列化的支持。<br>
+　　基于tick哈希设计的Message容器。此处由于需要对tick进行直接管理，因此在Message类和Track类中间省略MidiEvent层。作为容器对象，提供基本的容器操作，并提供序列化的支持。<br>
 　　通过以上简单探讨，Track作为容器应当具备以下一些特性：
 <ul class="article_141_ul">
     <li>事件允许重复。即在相同时间戳里允许产生在字节范围内完全一致的多个消息；</li>
@@ -483,7 +483,7 @@ document.body.onclick = function() {
 <pre class="prettyprint linenums">
 /**
  * key: tick count from the start of the sequence.
- * value: msgArr {Array<MidiMessag>} messages that're sharing the same tick which should 
+ * value: msgArr {Array<Message>} messages that're sharing the same tick which should 
  *     be contributed by type and data, and they could be serialized.
  */
 events = {
@@ -506,17 +506,17 @@ events = {
 var seq = new Midi.Sequence(1, 24),
     track = seq.getTrack(0);
 
-track.addEvent(0, new Midi.MidiMessage(0xc0, 0x11));        // Program Change to No.17
-track.addEvent(0, new Midi.MidiMessage(0xB0, [124,0]));     // omni on
-track.addEvent(0, new Midi.MidiMessage(0xB0, [126,1]));     // mono on & omni on
-track.addEvent(0, new Midi.MidiMessage(0x90, [60,127]));    // Note On Key 0x3C
-track.addEvent(120, new Midi.MidiMessage(0xB0, [1,127]));   // Vibrato Controller
-track.addEvent(240, new Midi.MidiMessage(0x80, [60,127]));  // Note Off
+track.addEvent(0, new Midi.Message(0xc0, 0x11));        // Program Change to No.17
+track.addEvent(0, new Midi.Message(0xB0, [124,0]));     // omni on
+track.addEvent(0, new Midi.Message(0xB0, [126,1]));     // mono on & omni on
+track.addEvent(0, new Midi.Message(0x90, [60,127]));    // Note On Key 0x3C
+track.addEvent(120, new Midi.Message(0xB0, [1,127]));   // Vibrato Controller
+track.addEvent(240, new Midi.Message(0x80, [60,127]));  // Note Off
 
 // Apply Voice Change and Pitch Wheel Change
 for (var i = 1; i <= 240; ++i) {
-    track.addEvent(i, new Midi.MidiMessage(0xB0, [11, 127 - ~~((127 / 240) * i)]));
-    track.addEvent(i, new Midi.MidiMessage(0xE0, [0, 64 + ~~((63 / 240) * i)]));
+    track.addEvent(i, new Midi.Message(0xB0, [11, 127 - ~~((127 / 240) * i)]));
+    track.addEvent(i, new Midi.Message(0xE0, [0, 64 + ~~((63 / 240) * i)]));
 }
 
 // Click & Download

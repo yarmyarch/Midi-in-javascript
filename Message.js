@@ -1,11 +1,11 @@
-//@ sourceURL=MidiMessage.js
+//@ sourceURL=Message.js
 
 Midi.requireClass("MidiUtil");
 
-Midi.MidiMessage;
+Midi.Message;
 (function() {
 
-Midi.MidiMessage = function(type, data) {
+Midi.Message = function(type, data) {
     
     var self = this;
     
