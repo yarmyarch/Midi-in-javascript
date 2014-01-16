@@ -17,6 +17,7 @@ body {
     float:left;
     clear:both;
     padding:12px;
+    width:572px;
 }
 .prettyprint:hover {
     background-color:#EEE;
@@ -34,9 +35,6 @@ Well forget it, let's play something here.<br>
 Let's say we're trying to generat something like it shown below:
 <div class="clear"></div>
 <pre class="prettyprint linenums">
-/**
- * 
- *
 01001101 01010100 01101000 01100100 // MThd
 00000000 00000000 00000000 00000110 // header lentgh: 6 bytes
 00000000 00000001                   // Midi Type: 1
@@ -70,7 +68,6 @@ Let's say we're trying to generat something like it shown below:
 00000000 10000000 00111100 00111111 // Note Off
 
 00000000 11111111 00101111 00000000 // tick 0, 0xFF 0x2F 0x00 - End of Track Chunk
- */
 </pre>
 <div class="clear"></div>
 And here comes the scirpt for that, play it in the console:
