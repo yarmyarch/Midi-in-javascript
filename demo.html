@@ -76,7 +76,7 @@ And here comes the scirpt for that, play it in the console:
 var seq = new Midi.Sequence(1, 24),
     track = seq.getTrack(0);
 
-track.addEvent(0, new Midi.MidiMessage(0xc0, 0x11));        // Program Change to No.11
+track.addEvent(0, new Midi.MidiMessage(0xc0, 0x11));        // Program Change to No.17
 track.addEvent(0, new Midi.MidiMessage(0xB0, [124,0]));     // omni on
 track.addEvent(0, new Midi.MidiMessage(0xB0, [126,1]));     // mono on & omni on
 track.addEvent(0, new Midi.MidiMessage(0x90, [60,127]));    // Note On Key 0x3C
